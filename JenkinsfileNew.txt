@@ -1,0 +1,41 @@
+pipeline {
+  agent {
+  any{
+    docker {
+      image '178.154.234.96:5000/jenkins-agent'
+    }
+  }
+}
+  stages {
+
+    stage('Copy source with configs') {
+      steps {
+        git(url: 'https://github.com/mihasik69/dockerfilefromjenkins.git', branch: 'main', poll: true, credentialsId: 'git')
+		}
+	}
+
+    stage('Build war') {
+      steps {
+        sh 'sudo docker build --tag=box .'
+      }
+    }
+
+    stage('Make docker image') {
+      steps {
+        sh '''docker login -u admin -p Admin123 178.154.234.197:8081 && docker tag box 178.154.234.197:8123/box:latest && docker push 178.154.234.197:8123/box:latest'''
+      }
+    }
+
+    stage('Run docker on 178.154.234.96') {
+      steps {
+        sh 'ssh-keyscan -H 178.154.234.96 >> ~/.ssh/known_hosts'
+        sh '''ssh jenkins@178.154.234.96 << EOF
+	sudo docker login -u admin -p Admin123 178.154.234.197:8081
+	sudo docker pull 178.154.234.197:8123/box:latest
+	sudo docker run -t -d -p 8000:8000 box
+	EOF'''
+      }
+    }
+  }
+
+}
