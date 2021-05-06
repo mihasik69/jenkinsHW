@@ -1,10 +1,10 @@
 pipeline {
-  agent {
-  any{
+agent{
     docker {
-      image '178.154.234.96:5000/jenkins-agent'
+      image '84.252.132.76:8123/jenkins-agent'
+	  arg '-v /var/run/docker.sock:/var/run/docker.sock - u 0:0'
+	  registryCredentialsId '99d24a86-f6b5-3329-911e-6d0bc750cda4'
     }
-  }
 }
   stages {
 
@@ -22,16 +22,16 @@ pipeline {
 
     stage('Make docker image') {
       steps {
-        sh '''docker login -u admin -p Admin123 178.154.234.197:8081 && docker tag box 178.154.234.197:8123/box:latest && docker push 178.154.234.197:8123/box:latest'''
+        sh '''docker login -u admin -p Admin123 84.252.132.76:8123 && docker tag box 84.252.132.76:8123/box:latest && docker push 84.252.132.76:8123/box:latest'''
       }
     }
 
-    stage('Run docker on 178.154.234.96') {
+    stage('Run docker on 84.252.132.76') {
       steps {
-        sh 'ssh-keyscan -H 178.154.234.96 >> ~/.ssh/known_hosts'
-        sh '''ssh jenkins@178.154.234.96 << EOF
-	sudo docker login -u admin -p Admin123 178.154.234.197:8081
-	sudo docker pull 178.154.234.197:8123/box:latest
+        sh 'ssh-keyscan -H 84.252.132.76 >> ~/.ssh/known_hosts'
+        sh '''ssh jenkins@84.252.132.76 << EOF
+	sudo docker login -u admin -p Admin123 84.252.132.76:8123
+	sudo docker pull 84.252.132.76:8123/box:latest
 	sudo docker run -t -d -p 8000:8000 box
 	EOF'''
       }

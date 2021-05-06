@@ -7,10 +7,8 @@ RUN apt-get update
 RUN apt-get -y install openssh-client
 
 # Confugure ssh client
-RUN mkdir -p /root/.ssh && \
-		chmod 0700 /root/.ssh
-RUN echo "$ssh_prv_key" > /root/.ssh/id_rsa &&     chmod 600 /root/.ssh/id_rsa
---build-arg SSH_PRIVATE_KEY="$(shell cat ~/.ssh/id_rsa)"
+RUN mkdir -p /root/.ssh
+RUN chmod 0700 /root/.ssh
 COPY "$ssh_prv_key" /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
 
